@@ -1,0 +1,290 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int a[20];
+    int size;
+    int len;
+} list;
+
+void display(list x) {
+    for (int i = 0; i < x.len; i++) {
+        printf("%d ", x.a[i]);
+    }
+    printf("\n");
+}
+
+void insert(list *a1, int element, int index) {
+    if (0 <= index && index <= a1->len && a1->len < a1->size) {
+        for (int i = a1->len; i > index; i--) {
+            a1->a[i] = a1->a[i - 1];
+        }
+        a1->a[index] = element;
+        a1->len++;
+    }
+}
+
+void delete(list *a1, int index) {
+    if (0 <= index && index < a1->len) {
+        for (int i = index; i < a1->len - 1; i++) {
+            a1->a[i] = a1->a[i + 1];
+        }
+        a1->len--;
+    }
+}
+
+int search(list a1, int element) {
+    int low = 0;
+    int high = a1.len - 1;
+    
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        if (a1.a[mid] == element) {
+            return mid;
+        } else if (a1.a[mid] < element) {
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+    return -1; // Element not found
+}
+
+void reverse(list *a1) {
+    int start = 0;
+    int end = a1->len - 1;
+    while (start < end) {
+        int temp = a1->a[start];
+        a1->a[start] = a1->a[end];
+        a1->a[end] = temp;
+        start++;
+        end--;
+    }
+}
+
+void leftRotate(list *x, int pos) {
+    if (pos > x->len) {
+        pos = pos % x->len;
+    }
+    
+    int temp[pos];
+    for (int i = 0; i < pos; i++) {
+        temp[i] = x->a[i]; // storing the first pos elements because they would be displaced out of the array.
+    }
+    
+    // left shift
+    for (int i = 0; i < x->len - pos; i++) { // only till len-pos because after that the elements which were displaced out of the would be placed.
+        x->a[i] = x->a[i + pos]; // this way we skip all the pos elements we stored in temp and start putting elements after that from 1st position onwards.
+    }
+    
+    for (int i = 0; i < pos; i++) {
+        x->a[(x->len - pos) + i] = temp[i]; // starting from the point from which we have to start placing the displaced elements.
+    }
+}
+
+void rightRotate(list *x, int pos) {
+    if (pos > x->len) {
+        pos = pos % x->len;
+    }
+    
+    int temp[pos];
+    int j = 0;
+    for (int i = x->len - pos; i < x->len; i++) {
+        temp[j] = x->a[i]; // storing the last pos elements because they would be displaced out of the array.
+        j++;
+    }
+    
+    // right shift
+    for (int i = x->len - 1; i >= pos; i--) { // only till pos because before that the elements which were displaced out of the would be placed.
+        x->a[i] = x->a[i - pos]; // this way we skip all the pos elements we stored in temp and start putting elements after that from last position onwards.
+    }
+    
+    for (int i = 0; i < pos; i++) {
+        x->a[i] = temp[i]; // starting from the point from which we have to start placing the displaced elements.
+    }
+}
+
+int issorted(list x) {
+    for (int i = 0; i < x.len - 1; i++) {
+        if (x.a[i] > x.a[i + 1]) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+void swap(int *x1, int *x2) {
+    int temp = *x1;
+    *x1 = *x2;
+    *x2 = temp;
+}
+
+void arrange(list *x) {
+    int i = 0;
+    int j = x->len - 1;
+    while (i < j) {
+        while (i < j && x->a[i] < 0) i++; // Find the first positive element from the left
+        while (i < j && x->a[j] >= 0) j--; // Find the first negative element from the right
+        if (i < j) {
+            swap(&x->a[i], &x->a[j]); // Swap them
+        }
+    }
+}
+
+list* merge(list *x1, list *x2) {
+    list *x3 = (list*)malloc(sizeof(list));
+    x3->size = x1->size + x2->size;
+    x3->len = x1->len + x2->len;
+    int k = 0;
+    for (int i = 0; i < x1->len; i++) {
+        x3->a[k++] = x1->a[i];
+    }
+    for (int j = 0; j < x2->len; j++) {
+        x3->a[k++] = x2->a[j];
+    }
+    return x3;
+}
+
+list* union_list(list x1, list x2) {
+    list *x3 = (list*)malloc(sizeof(list));
+    x3->size = x1.size + x2.size;
+    x3->len = 0;
+    int i = 0, j = 0, k = 0;
+    while (i < x1.len && j < x2.len) {
+        if (x1.a[i] < x2.a[j]) {
+            x3->a[k++] = x1.a[i++];
+        } else if (x2.a[j] < x1.a[i]) {
+            x3->a[k++] = x2.a[j++];
+        } else {
+            x3->a[k++] = x1.a[i++];
+            j++;
+        }
+    }
+    while (i < x1.len) {
+        x3->a[k++] = x1.a[i++];
+    }
+    while (j < x2.len) {
+        x3->a[k++] = x2.a[j++];
+    }
+    x3->len = k;
+    return x3;
+}
+
+list* intersection(list x1, list x2) {
+    list *x3 = (list*)malloc(sizeof(list));
+    x3->size = x1.size + x2.size;
+    x3->len = 0;
+    int i = 0, j = 0, k = 0;
+    while (i < x1.len && j < x2.len) {
+        if (x1.a[i] < x2.a[j]) {
+            i++;
+        } else if (x2.a[j] < x1.a[i]) {
+            j++;
+        } else {
+            x3->a[k++] = x1.a[i++];
+            j++;
+        }
+    }
+    x3->len = k;
+    return x3;
+}
+
+list* setdifference(list x1, list x2) {
+    list *x3 = (list*)malloc(sizeof(list));
+    x3->size = x1.size + x2.size;
+    x3->len = 0;
+    int i = 0, j = 0, k = 0;
+    while (i < x1.len && j < x2.len) {
+        if (x1.a[i] < x2.a[j]) {
+            x3->a[k++] = x1.a[i++];
+        } else if (x2.a[j] < x1.a[i]) {
+            j++;
+        } else {
+            i++;
+            j++;
+        }
+    }
+    while (i < x1.len) {
+        x3->a[k++] = x1.a[i++];
+    }
+    x3->len = k;
+    return x3;
+}
+
+int main() {
+    list a1 = {{1, 2, 3, 4, 5, 6, 7, 8, 9}, 20, 9};
+
+    insert(&a1, 12, 7);
+    display(a1);
+    printf("\n");
+
+    delete(&a1, 7);
+    display(a1);
+    printf("\n");
+    
+    reverse(&a1);
+    display(a1);
+    printf("\n");
+
+    // Testing binary search
+    int element_to_search = 6;
+    int index = search(a1, element_to_search);
+    if (index != -1) {
+        printf("Element %d found at index %d\n", element_to_search, index);
+    } else {
+        printf("Element %d not found\n", element_to_search);
+    }
+    
+    printf("\n");
+    
+    reverse(&a1);
+    display(a1);
+    printf("\n");
+    
+    index = search(a1, element_to_search);
+    if (index != -1) {
+        printf("Element %d found at index %d\n", element_to_search, index);
+    } else {
+        printf("Element %d not found\n", element_to_search);
+    }
+    
+    printf("\n");
+    
+    leftRotate(&a1, 1);
+    display(a1);
+    printf("\n");
+    
+    rightRotate(&a1, 18);
+    display(a1);
+    printf("\n");
+
+    printf("%d\n", issorted(a1));
+    
+    list a2 = {{1, 2, 3, 4, 5, -6, -7, -8, -9}, 20, 9};
+    
+    arrange(&a2);
+    display(a2);
+    printf("\n");
+    
+    list *mergedList = merge(&a1, &a2);
+    display(*mergedList);
+    free(mergedList);
+    printf("\n");
+    
+    list *unionList = union_list(a1, a2);
+    display(*unionList);
+    free(unionList);
+    printf("\n");
+
+    list *intersectionList = intersection(a1, a2);
+    display(*intersectionList);
+    free(intersectionList);
+    printf("\n");
+
+    list *setDifferenceList = setdifference(a1, a2);
+    display(*setDifferenceList);
+    free(setDifferenceList);
+    printf("\n");
+
+    return 0;
+}

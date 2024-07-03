@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void hash(int a[], int n, int k) {
+    int i = 0;
+    int j = n - 1;
+    int found = 0; // Variable to track if any pairs are found
+
+    // Use two pointers to find pairs that sum up to k
+    while (i < j) {
+        int sum = a[i] + a[j];
+        if (sum == k) {
+            printf("%d + %d = %d\n", a[i], a[j], k);
+            i++;
+            j--;
+            found = 1; // Set found to true if a pair is found
+        } else if (sum < k) {
+            i++;
+        } else {
+            j--;
+        }
+    }
+
+    // If no pairs were found, print a message
+    if (!found) {
+        printf("No pairs found that sum to %d\n", k);
+    }
+}
+
+int main() {
+    // Example array, ensure it is sorted for the two-pointer technique to work correctly
+    int a[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int n = sizeof(a) / sizeof(a[0]);
+    int k = 10;
+
+    // Call the hash function to find pairs
+    hash(a, n, k);
+
+    return 0;
+}

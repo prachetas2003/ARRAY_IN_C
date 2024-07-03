@@ -1,0 +1,39 @@
+#include <stdio.h>
+
+void find_duplicates(int arr[], int n) {
+    int duplicate_count = 0;
+
+    for (int i = 0; i < n; i++) {
+        // Skip the element if it is already marked as duplicate
+        if (arr[i] == -1) {
+            continue;
+        }
+
+        // Pointer A stays at arr[i]
+        for (int j = i + 1; j < n; j++) {
+            // Pointer B traverses the rest of the array
+            if (arr[i] == arr[j]) {
+                // Found a duplicate
+                duplicate_count++;
+                arr[j] = -1;  // Mark duplicate element as -1
+            }
+        }
+    }
+
+    // Print the results
+    printf("Number of duplicates found: %d\n", duplicate_count);
+    printf("Updated array: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int array[] = {4, 3, 2, 7, 8, 2, 3, 1};
+    int n = sizeof(array) / sizeof(array[0]);
+
+    find_duplicates(array, n);
+
+    return 0;
+}
